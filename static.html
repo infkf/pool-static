@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swimming Pool Usage Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Swimming Pool Usage Over Time</h2>
+        <canvas id="usageChart"></canvas>
+    </div>
+    <script>
+        // Function to fetch data from the /data endpoint
+        async function fetchData() {
+            try {
+                const response = await fetch('http://api.igor.am/pool-data');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+                return [];
+            }
+        }
+
+        // Function to render the chart
+        async function renderChart() {
+            const dataPoints = await fetchData();
+
+            // Prepare the data for Chart.js
+            const labels = dataPoints.map(dp => new Date(dp.timestamp).toLocaleString());
+            const percentages = dataPoints.map(dp => dp.percentage);
+
+            const ctx = document.getElementById('usageChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Swimming Pool Usage (%)',
+                        data: percentages,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Timestamp'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Usage (%)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render the chart when the page loads
+        window.onload = renderChart;
+    </script>
+</body>
+</html>
