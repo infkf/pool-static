@@ -29,7 +29,7 @@
         // Function to fetch data from the /data endpoint
         async function fetchData() {
             try {
-                const response = await fetch('http://api.igor.am/pool-data');
+                const response = await fetch('https://api.igor.am/pool-data');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
